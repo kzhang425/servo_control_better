@@ -11,6 +11,8 @@ extern Servo servoTilt;
 extern Stepper myStepper;
 extern int enA;
 extern int enB;
+extern unsigned long moving_time_limit;
+extern unsigned long min_moving_time;
 
 void motorwrite(int motortype, int pos, int* pan_angle, int* tilt_angle) {
   bool invalid = (pos < 0) || (pos > 180);
@@ -50,15 +52,66 @@ void motorwrite(int motortype, int pos, int* pan_angle, int* tilt_angle) {
     }
 }
 
-void motorspeedwrite(int motortype, int pos, int duration, int* pan_angle, int* tilt_angle) {
+void motorspeedwrite(int motortype, int pos, long duration, int* pan_angle, int* tilt_angle) {
   if (motortype == STEPPER) {
     // Can't exactly control the speed of a stepper motor the normal way, and it is slow as is. Thus, handle it regularly
     motorwrite(STEPPER, pos, NULL, NULL);
     return;
   }
 
+  // If the input position or other parameters are incorrect, handle them here
+  if (!validmotor(motortype) || !validpos(pos)) {
+    return;
+  }
 
+  // If the direct user or API user decides to make the duration abnormally long or abnormally short, try to correct and put hard limits here
+  if (duration > moving_time_limit) {
+    duration = moving_time_limit;
+  } else if (duration < min_moving_time) {
+    duration = min_moving_time;
+  } else {
+    duration = (unsigned long) duration; // Cast to prevent potential issues
+  }
+
+  // Start a timer, keep track of the time it takes to go some amount of angle
+  unsigned long start_time = millis();
+  unsigned long progress = 0;
+  while ((progress < duration) && !Serial.available()) {
+    /* For the servos to keep trying to move like this, the process cannot take longer than 5 seconds and there should not be any other input
+     * awaiting read. This is so that if the user wants to move the servo slowly but then changed their mind, they should be able to skip the 
+     * original process and go on to the new process.
+     */
+    
+    long angle;
+    switch (motortype) {
+      case SERVO_PAN:
+        angle = map(progress, 0, duration, *pan_angle, pos);
+        servoPan.write(angle);
+        break;
+
+      case SERVO_TILT:
+        angle = map(progress, 0, duration, *tilt_angle, pos);
+        servoTilt.write(angle);
+        break;
+    }
+    
+    // Update progress for next iteration of while loop
+    progress = millis() - start_time;
+  }
+
+  // Print progress to debug
+  Serial.print("Servo has moved to position: ");
+  Serial.println(pos);
+  Serial.print("Duration in ms: ");
+  Serial.println(progress);
 }
 
+bool validmotor(int motor) {
+  return (motor < 3) && (motor >= 0);
+}
+
+bool validpos(int pos) {
+  return (pos <= 180) && (pos >= 0);
+}
 
 #endif
