@@ -22,8 +22,15 @@ int pos;
 const char* delimiter = ",";
 
 // Control servo speed limits
-unsigned long moving_time_limit = 5000; // in ms, defines the maximum milliseconds that motorspeedwrite() can use
+unsigned long moving_time_limit = 18000; // in ms, defines the maximum milliseconds that motorspeedwrite() can use
 unsigned long min_moving_time = 200; // in ms
+
+/* DESCRIPTION
+ * The way how this program works is that it serves to interact with a C# wrapper function to control a robotic arm. Alternatively, this can be done via
+ * the serial monitor by entering numbers separated by commas. 
+ * For two inputs: <angle>,<motorindex> with no angle brackets (example such as 50,0).
+ * For 3 inputs: <angle>,<motorindex>,<duration> with no angle brackets
+ */
 
 
 void setup() {
@@ -47,11 +54,6 @@ void loop() {
     char* first = strtok(buffer, delimiter);
     char* second = strtok(NULL, delimiter);
     char* third = strtok(NULL, delimiter); // potentially and likely will be NULL in most cases
-
-    // No second term, can't run anything below at all
-    if (second == NULL) {
-      return;
-    }
 
     // Handle negatives, but there shouldn't be any
     if (first[0] == '-') {

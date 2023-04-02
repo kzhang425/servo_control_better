@@ -13,6 +13,9 @@ void motorwrite(int motortype, int pos, int* pan_angle, int* tilt_angle);
 
 void motorspeedwrite(int motortype, int pos, long duration, int* pan_angle, int* tilt_angle);
 
+// A rather thin wrapper over motorspeedwrite() but with an input of speed in degrees per second.
+void motorcswrite(int motortype, int pos, int speed, int* pan_angle, int* tilt_angle);
+
 bool validmotor(int motortype);
 
 // Note: This function is not likely to be applied on stepper motors.

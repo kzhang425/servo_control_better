@@ -33,6 +33,7 @@ void motorwrite(int motortype, int pos, int* pan_angle, int* tilt_angle) {
           Serial.println("Invalid position.");
           return;
         }
+        *tilt_angle = pos;
         servoTilt.write(pos);
         Serial.print("ServoTilt in position\n");
         Serial.println(pos);
@@ -76,6 +77,8 @@ void motorspeedwrite(int motortype, int pos, long duration, int* pan_angle, int*
   // Start a timer, keep track of the time it takes to go some amount of angle
   unsigned long start_time = millis();
   unsigned long progress = 0;
+  int start_pan = *pan_angle;
+  int start_tilt = *tilt_angle;
   while ((progress < duration) && !Serial.available()) {
     /* For the servos to keep trying to move like this, the process cannot take longer than 5 seconds and there should not be any other input
      * awaiting read. This is so that if the user wants to move the servo slowly but then changed their mind, they should be able to skip the 
@@ -85,13 +88,15 @@ void motorspeedwrite(int motortype, int pos, long duration, int* pan_angle, int*
     long angle;
     switch (motortype) {
       case SERVO_PAN:
-        angle = map(progress, 0, duration, *pan_angle, pos);
+        angle = map(progress, 0, duration, start_pan, pos);
         servoPan.write(angle);
+        *pan_angle = angle;
         break;
 
       case SERVO_TILT:
-        angle = map(progress, 0, duration, *tilt_angle, pos);
+        angle = map(progress, 0, duration, start_tilt, pos);
         servoTilt.write(angle);
+        *tilt_angle = angle;
         break;
     }
     
@@ -104,6 +109,10 @@ void motorspeedwrite(int motortype, int pos, long duration, int* pan_angle, int*
   Serial.println(pos);
   Serial.print("Duration in ms: ");
   Serial.println(progress);
+}
+
+void motorcswrite(int motortype, int pos, int speed, int* pan_angle, int* tilt_angle) {
+  
 }
 
 bool validmotor(int motor) {
