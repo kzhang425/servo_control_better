@@ -24,7 +24,7 @@ const int default_speed = 20;
 
 // Control servo speed limits
 unsigned long moving_time_limit = 18000; // in ms, defines the maximum milliseconds that motorspeedwrite() can use
-unsigned long min_moving_time = 200; // in ms
+unsigned long min_moving_time = 100; // in ms
 
 /* DESCRIPTION
  * The way how this program works is that it serves to interact with a C# wrapper function to control a robotic arm. Alternatively, this can be done via
@@ -52,6 +52,15 @@ void loop() {
   if (Serial.available()) {
     int read = Serial.readBytesUntil('\n', buffer, BUF_SIZE - 1);
     buffer[read] = '\0';
+    
+    // There is a lot we can do with the input buffer. We can parse for specific strings ended by a \n to let arduino do different things
+    if (strcmp(buffer, "/ping") == 0) {
+      // Print internal values, namely the current positions of the servos. There is no way to figure out the position of the stepper motor
+      printservopos(pan_angle, tilt_angle);
+      return;
+    }
+
+    // Moving the motors, parse the string as a comma delimited string of numbers
     char* first = strtok(buffer, delimiter);
     char* second = strtok(NULL, delimiter);
     char* third = strtok(NULL, delimiter); // potentially and likely will be NULL in most cases
@@ -81,7 +90,6 @@ void loop() {
         int speed = atoi(third + 1); // Should skip over the s and into the start of the number right after
         motorcswrite(movement, pos, speed, &pan_angle, &tilt_angle);
       }
-
     } else {
       // Input in the form of 40,0,2000
       // Will go from current position to the desired 40 degrees in 2000 ms or 2 seconds

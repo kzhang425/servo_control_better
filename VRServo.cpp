@@ -14,6 +14,12 @@ extern int enB;
 extern unsigned long moving_time_limit;
 extern unsigned long min_moving_time;
 
+void printservopos(const int pan_angle, const int tilt_angle) {
+  Serial.print(pan_angle);
+  Serial.print(',');
+  Serial.println(tilt_angle);  
+}
+
 void motorwrite(int motortype, int pos, int* pan_angle, int* tilt_angle) {
   bool invalid = (pos < 0) || (pos > 180);
   switch (motortype) {

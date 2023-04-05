@@ -6,6 +6,9 @@
 #define STEPPER 2
 #define BUF_SIZE 15
 
+// Report current position of servos and prints it to the serial monitor for Unity/C# to pick up
+void printservopos(const int pan_angle, const int tilt_angle);
+
 /* Takes movetype and position and tells the corresponding motor to move to the position defined. The last two arguments refer to the global value stored
  * by the servos.
  */
