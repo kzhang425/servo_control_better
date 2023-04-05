@@ -20,6 +20,7 @@ char buffer[BUF_SIZE];
 int movement;
 int pos;
 const char* delimiter = ",";
+const int default_speed = 20;
 
 // Control servo speed limits
 unsigned long moving_time_limit = 18000; // in ms, defines the maximum milliseconds that motorspeedwrite() can use
@@ -62,13 +63,28 @@ void loop() {
       pos = atoi(first);
     }
     
+    // Use this to define which motor moves
     movement = atoi(second);
 
     // Either of these functions should block the main loop. motorwrite() hardly needs to but motorspeedwrite() contains a loop that slowly increments
     // servo motors. We need a hard limit on how much time a slowed down servo can take
     if (third == NULL) {
+      // Input in the form of something like 40,0
       motorwrite(movement, pos, &pan_angle, &tilt_angle);
+    } else if (third[0] == 's') {
+      // When there is something like 40,0,s20
+      if (third[1] == '\0') {
+        // If simply just s and nothing after, then use the default speed defined above
+        motorcswrite(movement, pos, default_speed, &pan_angle, &tilt_angle);
+      } else {
+        // Otherwise, there should be a number that will represent the speed right after the 's' character
+        int speed = atoi(third + 1); // Should skip over the s and into the start of the number right after
+        motorcswrite(movement, pos, speed, &pan_angle, &tilt_angle);
+      }
+
     } else {
+      // Input in the form of 40,0,2000
+      // Will go from current position to the desired 40 degrees in 2000 ms or 2 seconds
       long duration = atol(third);
       motorspeedwrite(movement, pos, duration, &pan_angle, &tilt_angle);
     }

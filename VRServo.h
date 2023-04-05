@@ -11,6 +11,7 @@
  */
 void motorwrite(int motortype, int pos, int* pan_angle, int* tilt_angle);
 
+// A function that writes to the servo motors with a set duration.
 void motorspeedwrite(int motortype, int pos, long duration, int* pan_angle, int* tilt_angle);
 
 // A rather thin wrapper over motorspeedwrite() but with an input of speed in degrees per second.

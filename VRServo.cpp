@@ -127,6 +127,7 @@ void motorcswrite(int motortype, int pos, int speed, int* pan_angle, int* tilt_a
       duration = (long) (abs(pos = *tilt_angle) / speed);
       break;
   }
+  motorspeedwrite(motortype, pos, duration, pan_angle, tilt_angle);
   
 }
 
