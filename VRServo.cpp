@@ -112,6 +112,21 @@ void motorspeedwrite(int motortype, int pos, long duration, int* pan_angle, int*
 }
 
 void motorcswrite(int motortype, int pos, int speed, int* pan_angle, int* tilt_angle) {
+  // Use motorspeedwrite to make this a wrapper function rather than having to rewrite this whole algorithm from scratch
+
+  // First, we calculate the time required to move at this speed using simple math
+  long duration = 1;
+  switch (motortype) {
+    case SERVO_PAN:
+      // use the current pan_angle
+      duration = (long) (abs(pos - *pan_angle) / speed);
+      break;
+
+    case SERVO_TILT:
+      // use the current tilt_angle
+      duration = (long) (abs(pos = *tilt_angle) / speed);
+      break;
+  }
   
 }
 
