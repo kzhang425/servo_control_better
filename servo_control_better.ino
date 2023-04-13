@@ -44,6 +44,10 @@ void setup() {
   digitalWrite(enB, LOW);
 
   Serial.begin(9600);
+
+  // Set motors to default positions
+  servoPan.write(pan_angle);
+  servoTilt.write(tilt_angle);
 }
 
 void loop() {
@@ -67,7 +71,7 @@ void loop() {
     
     // Use this to define which motor moves
     movement = atoi(second);
-
+    pos = atoi(first);
     // Either of these functions should block the main loop. motorwrite() hardly needs to but motorspeedwrite() contains a loop that slowly increments
     // servo motors. We need a hard limit on how much time a slowed down servo can take
     if (third == NULL) {
