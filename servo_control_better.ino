@@ -64,13 +64,6 @@ void loop() {
     char* first = strtok(buffer, delimiter);
     char* second = strtok(NULL, delimiter);
     char* third = strtok(NULL, delimiter); // potentially and likely will be NULL in most cases
-
-    // Handle negatives, but there shouldn't be any
-    if (first[0] == '-') {
-      pos = - atoi(first);
-    } else {
-      pos = atoi(first);
-    }
     
     // Use this to define which motor moves
     movement = atoi(second);

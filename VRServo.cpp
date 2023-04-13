@@ -130,10 +130,12 @@ void motorcswrite(int motortype, int pos, int speed, int* pan_angle, int* tilt_a
 
     case SERVO_TILT:
       // use the current tilt_angle
-      duration = (long) (abs(pos = *tilt_angle) / speed);
+      duration = (long) (abs(pos - *tilt_angle) / speed);
       break;
   }
-  motorspeedwrite(motortype, pos, duration, pan_angle, tilt_angle);
+
+  long duration_in_millis = 1000 * duration;
+  motorspeedwrite(motortype, pos, duration_in_millis, pan_angle, tilt_angle);
   
 }
 
